@@ -2,12 +2,12 @@
 
 Import file format : csv and xml
 
-#csv  
+csv  
 Example:
 “Invoice0000001”,”1,000.00”, “USD”, “20/02/2019 12:33:16”, “Approved”
 
 
-#xml
+xml
 Example:
 
 <Transactions>
@@ -21,7 +21,7 @@ Example:
 </Transaction> 
 
 
-#Create API methods
+Create API methods
 Example of output:
 
 [{ “id”:”Inv00001”, “payment”:”200.00 USD”, “Status”: “D”}]
