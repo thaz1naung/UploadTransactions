@@ -31,8 +31,8 @@ namespace MyCoreMVCDemo.Controllers
         public IActionResult Index()
         {
             return View();
-        }        
-       [HttpPost]
+        }
+        [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IFormFile postedFiles)
@@ -40,54 +40,59 @@ namespace MyCoreMVCDemo.Controllers
             DataViewModel result = new DataViewModel();
             try
             {
-
+                if (!postedFiles.FileName.EndsWith(".csv") && !postedFiles.FileName.EndsWith(".xml"))
+                {
+                    ViewBag.ErrorMessage = "“Unknown format";
+                    return View();
+                }
                 List<ImportViewModel> lsitData = new List<ImportViewModel>();
                 if (postedFiles.FileName.EndsWith(".csv"))
                 {
                     using (var sreader = new StreamReader(postedFiles.OpenReadStream()))
                     {
-                       
-                        while (!sreader.EndOfStream)                        
+
+                        while (!sreader.EndOfStream)
                         {
                             string[] rows = sreader.ReadLine().Split(',');
-                            
+
                             lsitData.Add(new ImportViewModel
-                            {                              
+                            {
                                 TransactionId = rows[0].ToString(),
                                 Amount = rows[1].ToString(),
                                 CurrencyCode = rows[2].ToString(),
-                                TransactionDate = rows[3].ToString(),// tempDate,
+                                TransactionDate = rows[3].ToString(),
                                 Status = rows[4].ToString(),
                                 FileType = "csv"
-                        });                       
+                            });
                         }
                     }
-                    
-                }else if (postedFiles.FileName.EndsWith(".xml"))
+
+                }
+                else if (postedFiles.FileName.EndsWith(".xml"))
                 {
 
-                        XmlDocument doc = new XmlDocument();
-                        string str = null;
-                        using (StreamReader streamReader = new StreamReader(postedFiles.OpenReadStream()))
-                        {
-                            str = streamReader.ReadToEnd();
-                        }
-                        doc.LoadXml(str);
-                        //Loop through the selected Nodes.
-                        foreach (XmlNode node in doc.SelectNodes("/Transactions/Transaction"))
-                        {
-                            //Fetch the Node values and assign it to Model.
-                            ImportViewModel d = new ImportViewModel();                          
-                            d.TransactionId = node.Attributes["id"].InnerText;
-                            d.TransactionDate = node["TransactionDate"].InnerText;
-                            d.Status = node["Status"].InnerText;
-                            d.Amount = node.ChildNodes[1]["Amount"].InnerText;
-                            d.CurrencyCode = node.ChildNodes[1]["CurrencyCode"].InnerText;
-                            d.FileType = "xml";                            
-                            lsitData.Add(d);
-                        }                       
-                    
-       
+                    XmlDocument doc = new XmlDocument();
+                    string str = null;
+                    using (StreamReader streamReader = new StreamReader(postedFiles.OpenReadStream()))
+                    {
+                        str = streamReader.ReadToEnd();
+                    }
+                    doc.LoadXml(str);
+                    //Loop through the selected Nodes.
+                    foreach (XmlNode node in doc.SelectNodes("/Transactions/Transaction"))
+                    {
+                        //Fetch the Node values and assign it to Model.
+                        ImportViewModel d = new ImportViewModel();
+                        d.TransactionId = node.Attributes["id"].InnerText;
+                        d.TransactionDate = node["TransactionDate"].InnerText;
+                        d.Status = node["Status"].InnerText;
+                        d.Amount = node.ChildNodes[1]["Amount"].InnerText;
+                        d.CurrencyCode = node.ChildNodes[1]["CurrencyCode"].InnerText;
+                        d.FileType = "xml";
+                        lsitData.Add(d);
+                    }
+
+
                 }
                 result = await _importService.ImportData(lsitData);
                 if (!result.status)
@@ -103,11 +108,11 @@ namespace MyCoreMVCDemo.Controllers
             {
                 ViewBag.ErrorMessage = ex.Message;
             }
-           
+
             return View();
         }
 
-        
+
         public IActionResult Privacy()
         {
             return View();

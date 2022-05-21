@@ -6,6 +6,7 @@ using MyCoreMVCDemo.Repositories.Bases;
 using MyCoreMVCDemo.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,8 +27,8 @@ namespace MyCoreMVCDemo.Repositories
             try
             {
                 var dapperparam = new DynamicParameters();
-                dapperparam.Add("@p_Currency", currency);              
-                
+                dapperparam.Add("@p_Currency", currency);
+
                 var sqlQuery = "RetrieveDataByCurrency";
                 var result = GetSelectSPResult<DataTransactionViewModel>(dapperparam, sqlQuery);
                 return result.ToList();
@@ -44,8 +45,8 @@ namespace MyCoreMVCDemo.Repositories
             try
             {
                 var dapperparam = new DynamicParameters();
-                dapperparam.Add("@p_FromDate", Convert.ToDateTime(fromdate));
-                dapperparam.Add("@p_ToDate", Convert.ToDateTime(todate));
+                dapperparam.Add("@p_FromDate", DateTime.ParseExact(fromdate, "yyyy-MM-dd", CultureInfo.InvariantCulture));
+                dapperparam.Add("@p_ToDate", DateTime.ParseExact(todate, "yyyy-MM-dd", CultureInfo.InvariantCulture));
 
                 var sqlQuery = "RetrieveDataByDateRange";
                 var result = GetSelectSPResult<DataTransactionViewModel>(dapperparam, sqlQuery);
@@ -83,7 +84,7 @@ namespace MyCoreMVCDemo.Repositories
             var result = await _coredbContext.SaveChangesAsync();
             return result == 1;
         }
-       
-        
+
+
     }
 }

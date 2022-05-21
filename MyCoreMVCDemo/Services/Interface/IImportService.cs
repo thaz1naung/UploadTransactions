@@ -13,6 +13,6 @@ namespace MyCoreMVCDemo.Services.Interface
         Task<DataViewModel> ImportData(List<ImportViewModel> data);
         IEnumerable<DataTransactionViewModel> RetrieveDataByCurrency(string currency);
         IEnumerable<DataTransactionViewModel> RetrieveDataByStatus(string status);
-        IEnumerable<DataTransactionViewModel> RetrieveDataByDateRange(string fromdate, string todate);
+        IEnumerable<DataTransactionViewModel> RetrieveDataByDateRange(DataRequestDTO param);
     }
 }

@@ -25,7 +25,7 @@ namespace MyCoreMVCDemo.Services
         }
         public async Task<DataViewModel> ImportData(List<ImportViewModel> listData)
         {
-            string tmpString = string.Empty;  
+            string tmpString = string.Empty;
             DataTable dtError = new DataTable();
             dtError.Columns.AddRange(new DataColumn[1] { new DataColumn("Error", typeof(string)) });
 
@@ -42,29 +42,29 @@ namespace MyCoreMVCDemo.Services
                         DataTransaction d = new DataTransaction();
                         d.TransGUID = new Guid();
                         d.TransactionId = data.TransactionId;
-                        d.TransactionDate =Convert.ToDateTime(data.TransactionDate);
+                        d.TransactionDate = Convert.ToDateTime(data.TransactionDate);
                         d.Amount = Convert.ToDecimal(data.Amount);
                         d.CurrencyCode = data.CurrencyCode;
                         d.Status = data.Status;
 
-                      var result= await _importRepository.SaveData(d);        
+                        var result = await _importRepository.SaveData(d);
                     }
                     else
                     {
-                       DataRow errdr= dtError.NewRow();
+                        DataRow errdr = dtError.NewRow();
 
                         if (errno == 1)
                             tmpString += data.TransactionId + " - All data are mandatory.<br>";
                         else if (errno == 2)
-                            tmpString += data.TransactionId  + " - exceed 50 characters.<br>";
+                            tmpString += data.TransactionId + " - exceed 50 characters.<br>";
                         else if (errno == 3)
-                            tmpString += data.TransactionDate  + " - invalid date/time format.<br>";
+                            tmpString += data.TransactionDate + " - invalid date/time format.<br>";
                         else if (errno == 4)
                             tmpString += data.Amount + " - invalid number.<br>";
                         else if (errno == 5)
                             tmpString += data.CurrencyCode + " - invalid curreny code format.<br>";
                         else if (errno == 6)
-                            tmpString += data.Status + " - invalid status.<br>";                  
+                            tmpString += data.Status + " - invalid status.<br>";
                     }
                 }
                 catch (Exception ex)
@@ -74,7 +74,7 @@ namespace MyCoreMVCDemo.Services
                         status = false,
                         code = 400,
                         message = ex.Message
-                    };       
+                    };
                 }
             }
             if (string.IsNullOrEmpty(tmpString))
@@ -99,71 +99,55 @@ namespace MyCoreMVCDemo.Services
         public int CheckValidation(ImportViewModel data)
         {
             int result = 0;
+            string tempDate = data.TransactionDate.ToString();
             decimal number;
             if (string.IsNullOrEmpty(data.TransactionId) || string.IsNullOrEmpty(data.TransactionDate.ToString()) || string.IsNullOrEmpty(data.Amount.ToString()) || string.IsNullOrEmpty(data.CurrencyCode) || string.IsNullOrEmpty(data.Status))
                 result = 1;
             else if (data.TransactionId.Length > 50)
                 result = 2;
-            else if (!ValidateDateTime(data.TransactionDate.ToString(),data.FileType))
-                result = 3;          
+            else if (!ValidateDateTime(data.FileType, ref tempDate))
+                result = 3;
             else if (!decimal.TryParse(data.Amount.ToString(), out number))
                 result = 4;
             else if (!ValidateCurrencyCode(data.CurrencyCode))
                 result = 5;
-            else
-                if(data.FileType == "csv")
-                    if (data.Status.ToLower() != "approved" && data.Status.ToLower() != "failed" && data.Status.ToLower() != "finished")
-                        result = 6;
-                else
-                     if (data.Status.ToLower() != "approved" && data.Status.ToLower() != "rejected" && data.Status.ToLower() != "done")
-                        result = 6;
+            else if (data.FileType == "csv" && (data.Status.ToLower() != "approved" && data.Status.ToLower() != "failed" && data.Status.ToLower() != "finished"))
+                result = 6;
+            else if (data.FileType == "xml" && (data.Status.ToLower() != "approved" && data.Status.ToLower() != "rejected" && data.Status.ToLower() != "done"))
+                result = 6;
 
+            data.TransactionDate = tempDate;
             return result;
         }
-        private bool ValidateDateTime(string data,string type)
+        private bool ValidateDateTime(string type, ref string data)
         {
-            try
+            if (type == "csv")
             {
-                if(type == "csv")
-                {
-                    Regex regex = new Regex(@"(((0|1)[0-9]|2[0-9]|3[0-1])\/(0[1-9]|1[0-2])\/((19|20)\d\d))$");
+                Regex regex = new Regex(@"(((0|1)[0-9]|2[0-9]|3[0-1])\/(0[1-9]|1[0-2])\/((19|20)\d\d))$");
 
-                    //Verify whether date entered in dd/MM/yyyy format.
-                    bool isValid = regex.IsMatch(data.Trim());
+                //Verify whether date entered in dd/MM/yyyy format.
+                bool isValid = regex.IsMatch(data.Trim());
 
-                    //Verify whether entered date is Valid date.
-                    DateTime dt;
-                    isValid = DateTime.TryParseExact(data, "dd/MM/yyyy hh:mm:ss", new CultureInfo("en-GB"), DateTimeStyles.None, out dt);
-                    if (!isValid)
-                    {
-                        return false;
-                    }
-                }else
+                //Verify whether entered date is Valid date.
+                DateTime dt;
+                isValid = DateTime.TryParseExact(data, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt);
+                if (!isValid)
                 {
-                    DateTime temp;
-                    if (!DateTime.TryParse(data ,out temp))
-                    {
-                        return false;
-                    }
-                   
+                    return false;
                 }
-                //string[] temp = data.Split(' ');
-                //string[] dateParts = temp[0].Split('/');
-                //string[] timeParts = temp[1].Split(':');
-                //DateTime testDate = new
-                //    DateTime(Convert.ToInt32(dateParts[2]),
-                //    Convert.ToInt32(dateParts[1]),
-                //    Convert.ToInt32(dateParts[0]));
-
-                //if (timeParts.Length < 2 || Convert.ToInt32(timeParts[0]) > 24 || Convert.ToInt32(timeParts[1]) >= 60)
-                //    return false;
-
-                return true;
+                data = DateTime.ParseExact(data, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm:ss");
             }
-            catch(Exception ex)
+            else
             {
-                return false;
+                DateTime temp;
+                if (!DateTime.TryParse(data, out temp))
+                {
+                    return false;
+                }
+
             }
+
+            return true;
         }
         private bool ValidateCurrencyCode(string data)
         {
@@ -192,9 +176,10 @@ namespace MyCoreMVCDemo.Services
             return _importRepository.RetrieveDataByStatus(status);
         }
 
-        public IEnumerable<DataTransactionViewModel> RetrieveDataByDateRange(string fromdate, string todate)
+        public IEnumerable<DataTransactionViewModel> RetrieveDataByDateRange(DataRequestDTO param)
         {
-            return _importRepository.RetrieveDataByDateRange(fromdate,todate);
+
+            return _importRepository.RetrieveDataByDateRange(param.StrStartDate, param.StrEndDate);
         }
     }
 }

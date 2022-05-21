@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyCoreMVCDemo.Entities;
 using MyCoreMVCDemo.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MyCoreMVCDemo.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("v1/transaction")]
     [ApiController]
     public class TransactionController : ControllerBase
     {
@@ -50,12 +51,12 @@ namespace MyCoreMVCDemo.Controllers
             }
         }
         [HttpGet]
-        [Route("transactiondate/fromdate/{fromdate}/todate/{todate}")]
-        public dynamic GetDataByDateRange(string fromdate,string todate)
+        [Route("transactiondate")]
+        public dynamic GetDataByDateRange([FromQuery] DataRequestDTO param)
         {
             try
             {
-                var result = _importService.RetrieveDataByDateRange(fromdate, todate);
+                var result = _importService.RetrieveDataByDateRange(param);
                 return new { code = HttpStatusCode.OK, success = "True", message = "Success", data = result };
             }
             catch (Exception ex)
