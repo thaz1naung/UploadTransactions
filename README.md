@@ -8,7 +8,9 @@ Example:
 “Invoice0000002”,”300.00”,”USD”,”21/02/2019 02:04:59”, “Failed”
 
 xml
+
 Example:
+
 <Transactions>
 <Transaction id=”Inv00001”>
 <TransactionDate>2019-01-23T13:45:10</TransactionDate>
@@ -29,7 +31,9 @@ Example:
 </Transactions>
 
 Create API methods
+
 Example of output:
+
 [{ “id”:”Inv00001”, “payment”:”200.00 USD”, “Status”: “D”},
  { “id”:”Inv00002”, “payment”:”10000.00 EUR”, “Status”: “R”},
  { “id”:”Invoice0000001”, “payment”:”1000.00 USD”, “Status”: “A”},
