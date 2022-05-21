@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style type="text/css">
+        body {
+            font-family: Arial;
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
+        @Html.AntiForgeryToken()
+        <span>Select File:</span>
+        <input type="file" name="postedFiles" />
+        <input type="submit" value="Upload" />
+        <br />
+        <span style="color:green">@Html.Raw(ViewBag.Message)</span>
+        <span style="color:red">@Html.Raw(ViewBag.ErrorMessage)</span>
+    </form>   
+    @section scripts {
+        <script type="text/javascript">
+            var MAX_FILE_SIZE = 1024; // 1MB
+
+            $(document).ready(function () {
+                $('#uploadFile').change(function () {
+                    fileSize = this.files[0].size;
+                    if (fileSize > MAX_FILE_SIZE) {
+                        this.setCustomValidity("File must not exceed 1 MB!");
+                        this.reportValidity();
+                        document.getElementById("btnSubmit").disabled = true;
+                    } else {
+                        this.setCustomValidity("");
+                        document.getElementById("btnSubmit").disabled = false;
+                    }
+                });
+            });
+        </script>
+        }
+    </body>
+
+</html>
