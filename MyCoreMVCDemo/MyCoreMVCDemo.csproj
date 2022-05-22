@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\ResponseViewModel.cs" />
     <Compile Remove="Models\ResponseViewModelExtension.cs" />
   </ItemGroup>
 
